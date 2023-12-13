@@ -8,8 +8,4 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\StarCitizenTranslator\StarCitizenTranslator.csproj" />
-  </ItemGroup>
-
 </Project>
