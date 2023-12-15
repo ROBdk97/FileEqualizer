@@ -8,6 +8,7 @@ This tool was originally developed to synchronize localization files for the [St
 - **Duplicate Resolution**: Identifies and resolves duplicate entries in localization files.
 - **Missing Entry Addition**: Automatically adds missing entries from a source file to a target file.
 - **Console-based User Interaction**: Provides interactive prompts for user inputs and choices.
+- **Try to reuse already translated text**: Tries to use entries that got the ',P' suffix added or removed
 
 ## Requirements
 - .NET Core or .NET Framework compatible with C#.
