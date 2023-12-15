@@ -32,7 +32,7 @@ This tool was originally developed to synchronize localization files for the [St
 - The expected format for both input and output files is a series of key-value pairs, each on a new line, formatted as `key=value`.
 
 ## Notes
-- The application expects files to be in a UTF-8 encoding.
+- The application expects files to be in a UTF-8-BOM encoding.
 - It handles Placeholder keys by checking for keys ending with `,P` or without a `,P` at the end.
 - User is required to resolve ambiguities in case of duplicate values for the same key.
 
