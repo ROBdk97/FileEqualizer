@@ -12,7 +12,7 @@ FileEqualizer is a C# console application designed to synchronize localization f
 
 ### Pre-built Executable
 For quick setup, download the pre-built executable:
-- [Download the latest release here.](https://github.com/ROBdk97/FIleEqualizer/releases/latest/download/FIleEqualizer.exe)
+- [Download the latest release here.](https://github.com/ROBdk97/FileEqualizer/releases/latest/download/FIleEqualizer.exe)
 
 Simply download and run the `FileEqualizer.exe` file. No additional installation is required.
 ## Usage
