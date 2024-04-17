@@ -1,40 +1,39 @@
-# Localization File Synchronization Tool
+# FileEqualizer
 
 ## Overview
-This C# console application is designed to synchronize and update localization files. It helps maintain consistency between different language files by adding missing entries and resolving duplicate values.
-This tool was originally developed to synchronize localization files for the [StarCitizen-Localization](https://github.com/Dymerz/StarCitizen-Localization) Repository.
+FileEqualizer is a C# console application designed to synchronize localization files efficiently. It handles discrepancies between different versions of localization files by adding missing entries and managing duplicates. Developed primarily for the [StarCitizen-Localization](https://github.com/Dymerz/StarCitizen-Localization) Repository, this tool can be adapted for other similar use cases.
 
 ## Features
-- **Duplicate Resolution**: Identifies and resolves duplicate entries in localization files.
-- **Missing Entry Addition**: Automatically adds missing entries from a source file to a target file.
-- **Console-based User Interaction**: Provides interactive prompts for user inputs and choices.
-- **Try to reuse already translated text**: Tries to reuse entries that got the ',P' suffix added or removed
+- **Duplicate Resolution**: Automatically identifies and allows users to resolve duplicate entries in localization files.
+- **Missing Entries Addition**: Adds missing entries from a source file to a target file, ensuring completeness.
+- **Interactive Console Interface**: Users are guided through the process via interactive console prompts, ensuring clear and straightforward navigation through tasks.
+- **Intelligent Text Reuse**: Attempts to intelligently reuse existing translations by recognizing and adjusting entries with the ',P' suffix.
+- **Backup Management**: Automatically creates backup files before making changes, allowing for easy recovery if needed.
 
-## Requirements
-- .NET Core or .NET Framework compatible with C#.
-- Input localization files in a specific format (key=value pairs).
+### Pre-built Executable
+For quick setup, download the pre-built executable:
+- [Download the latest release here.](https://github.com/ROBdk97/FIleEqualizer/releases/latest/download/FIleEqualizer.exe)
 
+Simply download and run the `FileEqualizer.exe` file. No additional installation is required.
 ## Usage
-1. **Start the Program**: Run the application. It will prompt for the paths of the input and output files.
-   
-   ```
-   Enter the path to the input file (EN):
+1. **Start the Application**: Launch `FileEqualizer.exe`. Follow the on-screen prompts to input the paths for the source and target files:
+   ```plaintext
+   Enter the path to the older input file (EN):
+   Enter the path to the new input file (EN):
    Enter the path to the output file (de, es, ...):
    ```
 
-2. **Provide File Paths**: Enter the full paths for both the source (English, by default) and target (other languages) localization files. 
+2. **File Verification**: The application verifies the existence of the specified files and warns if any file paths overlap.
 
-3. **Processing**: The application checks for duplicates in both files, resolves them (with user input if necessary), adds missing entries from the source to the target file, and then sorts and updates the target file.
+3. **Processing**: Engages in processing the files by checking for duplicates, adding missing entries, and updating the target file accordingly.
 
-4. **Completion**: Once processing is done, a "Done!" message appears. Press Enter to exit the application.
+4. **Completion**: Upon successful processing, a "Done!" message is displayed. Press Enter to exit the application.
 
-## Input File Format
-- The expected format for both input and output files is a series of key-value pairs, each on a new line, formatted as `key=value`.
-
-## Notes
-- The application expects files to be in a UTF-8-BOM encoding.
-- It handles Placeholder keys by checking for keys ending with `,P` or without a `,P` at the end.
-- User is required to resolve ambiguities in case of duplicate values for the same key.
+## Requirements
+- Input and output files should be formatted as key=value pairs in UTF-8 encoding.
 
 ## Contributing
-Contributions, bug reports, and feature requests are welcome. Please refer to the project's issue tracker to contribute.
+Your contributions are welcome! Please refer to the project's issues page on GitHub for submitting bug reports, feature requests, or code contributions.
+
+## License
+Distributed under the MIT License. See `LICENSE` file for more information.
