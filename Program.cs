@@ -1,21 +1,60 @@
 ﻿using System.Text;
 
-Console.WriteLine("Enter the path to the input file (EN):");
+Console.WriteLine("Enter the path to the older input file (EN):");
+string oldInputFilePath = Console.ReadLine();
+Console.WriteLine("Enter the path to the new input file (EN):");
 string inputFilePath = Console.ReadLine();
-inputFilePath = inputFilePath.Replace("\"", "");
 Console.WriteLine("Enter the path to the output file (de, es, ...):");
 string langFilePath = Console.ReadLine();
-langFilePath = langFilePath.Replace("\"", "");
-await AddMissingEntries(inputFilePath, langFilePath);
+CheckPaths(ref oldInputFilePath, ref inputFilePath, ref langFilePath);
+await AddMissingEntries(oldInputFilePath, inputFilePath, langFilePath);
 Console.WriteLine("Done!");
 Console.WriteLine("Press Enter to exit...");
 Console.ReadLine();
 
-static async Task AddMissingEntries(string inputFilePath, string outputFilePath)
+static void CheckPaths(ref string oldInputFilePath, ref string inputFilePath, ref string langFilePath)
 {
+    // Remove quotes from the paths
+    oldInputFilePath = oldInputFilePath.Replace("\"", "");
+    inputFilePath = inputFilePath.Replace("\"", "");
+    langFilePath = langFilePath.Replace("\"", "");
+    // Check if the files exist
+    if (!File.Exists(oldInputFilePath))
+    {
+        Console.WriteLine("Old input file does not exist.");
+        Environment.Exit(1);
+    }
+    if (!File.Exists(inputFilePath))
+    {
+        Console.WriteLine("Input file does not exist.");
+        Environment.Exit(1);
+    }
+    if (!File.Exists(langFilePath))
+    {
+        Console.WriteLine("Output file does not exist.");
+        Environment.Exit(1);
+    }
+    // Check oldInput and are the same and give a warning
+    if (oldInputFilePath == inputFilePath)
+    {
+        Console.WriteLine("Warning: Old input file and input file are the same.");
+        Console.Write("Do you want to continue? (y/n): ");
+        if (Console.ReadLine().ToLower() != "y")
+        {
+            Environment.Exit(1);
+        }
+    }
+    // Copy langFilePath to a backup file
+    File.Copy(langFilePath, langFilePath + ".old", true);
+}
+
+static async Task AddMissingEntries(string oldInputFilePath, string inputFilePath, string outputFilePath)
+{
+    var readOldIn = Task.Run(() => File.ReadAllLinesAsync(oldInputFilePath));
     var readIn = Task.Run(() => File.ReadAllLinesAsync(inputFilePath));
     var readOut = Task.Run(() => File.ReadAllLinesAsync(outputFilePath));
 
+    var OldFile1Lines = await readOldIn;
     var file1Lines = await readIn;
     var file2Lines = await readOut;
 
@@ -25,14 +64,18 @@ static async Task AddMissingEntries(string inputFilePath, string outputFilePath)
     Console.WriteLine("Checking for duplicates in file 2");
     file2Lines = await CheckDuplicates(file2Lines);
 
+    var oldFile1Dict = OldFile1Lines.Select(line => line.Split('=', 2)).ToDictionary(split => split[0], split => split[1]);
     // get a dictionary of all keys and values from file1
     var file1Dict = file1Lines.Select(line => line.Split('=', 2)).ToDictionary(split => split[0], split => split[1]);
+    // Check for changes between the old file and the new input file and use the new value
+    var changes = file1Dict.Where(pair => oldFile1Dict.ContainsKey(pair.Key) && oldFile1Dict[pair.Key] != pair.Value).ToDictionary();
+    Console.WriteLine($"Found {changes.Count} changes between the old input file and the new input file");
 
     // get a dictionary of all keys and values from file2
     var file2Dict = file2Lines.Select(line => line.Split('=', 2)).ToDictionary(split => split[0], split => split[1]);
 
     // update file2Dict with missing keys from file1Dict
-    UpdateTranslations(file1Dict, ref file2Dict);
+    UpdateTranslations(file1Dict, ref file2Dict, changes);
 
     // sort file2Dict to have the same order as file1Dict
     var orderedList = file1Dict.Keys
@@ -104,7 +147,7 @@ static Task<string[]> CheckDuplicates(string[] lines)
     return Task.FromResult(finalLines.ToArray());
 }
 
-static void UpdateTranslations(Dictionary<string, string> file1Dict, ref Dictionary<string, string> file2Dict)
+static void UpdateTranslations(Dictionary<string, string> file1Dict, ref Dictionary<string, string> file2Dict, Dictionary<string, string> changes)
 {
     Console.WriteLine("Updating translations");
     var keysToUpdate = new List<string>();
@@ -116,7 +159,14 @@ static void UpdateTranslations(Dictionary<string, string> file1Dict, ref Diction
 
         if (file2Dict.ContainsKey(key))
         {
-            // If the exact key exists, no need to update
+            if (changes.ContainsKey(key))
+            {
+                keysToUpdate.Add(key);
+            }
+            else if(file2Dict.ContainsKey(keyVariant))
+            {
+                keysToUpdate.Add(keyVariant);
+            }
             continue;
         }
         else if (file2Dict.ContainsKey(keyVariant))
@@ -137,8 +187,16 @@ static void UpdateTranslations(Dictionary<string, string> file1Dict, ref Diction
     foreach (var oldKey in keysToUpdate)
     {
         string newKey = oldKey.EndsWith(",P") ? oldKey.Remove(oldKey.Length - 2) : oldKey + ",P";
-        string value = file2Dict[oldKey];
-        file2Dict.Remove(oldKey);
-        file2Dict[newKey] = value;
+        if (file2Dict.ContainsKey(oldKey))
+        {
+            string value = file2Dict[oldKey];
+            file2Dict.Remove(oldKey);
+            file2Dict[newKey] = value;
+        }
+        // Overwrite the value if it was changed
+        if (changes.ContainsKey(oldKey))
+        {
+            file2Dict[oldKey] = changes[oldKey];
+        }
     }
 }
